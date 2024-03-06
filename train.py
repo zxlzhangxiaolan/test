@@ -14,7 +14,7 @@ from albumentations.core.composition import Compose, OneOf
 from sklearn.model_selection import train_test_split
 from torch.optim import lr_scheduler
 from tqdm import tqdm
-
+import albumentations as albu
 import archs
 import losses
 from dataset import Dataset
@@ -215,8 +215,7 @@ def main():
     # create model
     print("=> creating model %s" % config['arch'])
     model = archs.__dict__[config['arch']](config['num_classes'],
-                                           config['input_channels'],
-                                           config['deep_supervision'])
+                                           config['input_channels'])
 
     model = model.cuda()
 
@@ -250,19 +249,18 @@ def main():
     train_img_ids, val_img_ids = train_test_split(img_ids, test_size=0.2, random_state=41)
 
     train_transform = Compose([
-        transforms.RandomRotate90(),
-        transforms.Flip(),
+        albu.RandomRotate90(),
+        albu.Flip(),
         OneOf([
             transforms.HueSaturationValue(),
-            transforms.RandomBrightness(),
-            transforms.RandomContrast(),
+            albu.RandomBrightnessContrast()
         ], p=1),
-        transforms.Resize(config['input_h'], config['input_w']),
+        albu.Resize(config['input_h'], config['input_w']),
         transforms.Normalize(),
     ])
 
     val_transform = Compose([
-        transforms.Resize(config['input_h'], config['input_w']),
+        albu.Resize(config['input_h'], config['input_w']),
         transforms.Normalize(),
     ])
 

@@ -10,7 +10,7 @@ from albumentations.augmentations import transforms
 from albumentations.core.composition import Compose
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-
+import albumentations as albu
 import archs
 from dataset import Dataset
 from metrics import iou_score
@@ -44,8 +44,7 @@ def main():
     # create model
     print("=> creating model %s" % config['arch'])
     model = archs.__dict__[config['arch']](config['num_classes'],
-                                           config['input_channels'],
-                                           config['deep_supervision'])
+                                           config['input_channels'])
 
     model = model.cuda()
 
@@ -60,7 +59,7 @@ def main():
     model.eval()
 
     val_transform = Compose([
-        transforms.Resize(config['input_h'], config['input_w']),
+        albu.Resize(config['input_h'], config['input_w']),
         transforms.Normalize(),
     ])
 
